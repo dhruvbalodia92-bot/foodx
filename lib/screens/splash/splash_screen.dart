@@ -1,3 +1,5 @@
+import 'dart:async';
+import '../auth/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,8 +14,15 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+
     Future.delayed(const Duration(seconds: 3), () {
-      // Login Screen pe baad me bhejenge
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+      );
     });
   }
 
