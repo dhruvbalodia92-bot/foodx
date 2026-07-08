@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     prefixText: "+91 ",
-                    hintText: "9876543210",
+                    hintText: "Enter Your Mobile Number",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -99,7 +99,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const OtpScreen(),
+                          builder: (context) => OtpScreen(
+                            phoneNumber: phoneController.text,
+                          ),
                         ),
                       );
                     },
