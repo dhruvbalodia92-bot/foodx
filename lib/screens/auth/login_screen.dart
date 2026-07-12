@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'otp_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -84,25 +85,46 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (phoneController.text.length != 10) {
+                    onPressed: () async {
+                      final phoneNumber = phoneController.text.trim();
+
+                      if (phoneNumber.length != 10) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text(
-                              "Please enter a valid 10 digit mobile number",
-                            ),
+                            content: Text("Please enter a valid 10 digit mobile number"),
                           ),
                         );
                         return;
                       }
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OtpScreen(
-                            phoneNumber: phoneController.text,
-                          ),
-                        ),
+                      await FirebaseAuth.instance.verifyPhoneNumber(
+                        phoneNumber: '+91$phoneNumber',
+
+                        verificationCompleted: (PhoneAuthCredential credential) async {
+                          await FirebaseAuth.instance.signInWithCredential(credential);
+                        },
+
+                        verificationFailed: (FirebaseAuthException e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.message ?? "OTP sending failed"),
+                            ),
+                          );
+                        },
+
+                        codeSent: (String verificationId, int? resendToken) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OtpScreen(
+                                phoneNumber: phoneNumber,
+                                verificationId: verificationId,
+                              ),
+                            ),
+                          );
+                        },
+
+                        codeAutoRetrievalTimeout: (String verificationId) {},
                       );
                     },
                     child: const Text(

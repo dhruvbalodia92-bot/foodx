@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../home/home_screen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
+  final String verificationId;
 
   const OtpScreen({
     super.key,
     required this.phoneNumber,
+    required this.verificationId,
   });
 
   @override
@@ -282,7 +286,7 @@ const SizedBox(height: 40),
     width: double.infinity,
     height: 55,
     child: ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         String otp = otp1Controller.text +
             otp2Controller.text +
             otp3Controller.text +
@@ -299,11 +303,43 @@ const SizedBox(height: 40),
           return;
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Entered OTP: $otp"),
-          ),
-        );
+        final messenger = ScaffoldMessenger.of(context);
+        final navigator = Navigator.of(context);
+
+        try {
+          final PhoneAuthCredential credential =
+          PhoneAuthProvider.credential(
+            verificationId: widget.verificationId,
+            smsCode: otp,
+          );
+
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+          if (!mounted) return;
+
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Text("Phone number verified successfully!"),
+            ),
+          );
+
+          navigator.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => const HomeScreen(),
+            ),
+                (route) => false,
+          );
+        } on FirebaseAuthException catch (e) {
+          if (!mounted) return;
+
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                e.message ?? "Invalid OTP. Please try again.",
+              ),
+            ),
+          );
+        }
       },
       child: const Text(
         "Verify OTP",
