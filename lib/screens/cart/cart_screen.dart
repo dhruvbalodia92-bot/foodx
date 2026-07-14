@@ -1,3 +1,4 @@
+import '../checkout/checkout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
@@ -309,7 +310,12 @@ class CartScreen extends StatelessWidget {
 
                     child: ElevatedButton(
                       onPressed: () {
-                        // Checkout next step me banayenge
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CheckoutScreen(),
+                          ),
+                        );
                       },
 
                       style: ElevatedButton.styleFrom(
