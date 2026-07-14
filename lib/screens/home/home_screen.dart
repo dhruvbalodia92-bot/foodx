@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../restaurant/restaurant_details_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -209,84 +210,104 @@ class _RestaurantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 85,
-            height: 85,
-            decoration: BoxDecoration(
-              color: Colors.orange.shade100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.restaurant,
-              size: 40,
-              color: Colors.orange,
+    return InkWell(
+      borderRadius: BorderRadius.circular(15),
+
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RestaurantDetailsScreen(
+              restaurantName: name,
+              cuisine: cuisine,
+              rating: rating,
+              deliveryTime: deliveryTime,
             ),
           ),
+        );
+      },
 
-          const SizedBox(width: 15),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(15),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+        ),
 
-                const SizedBox(height: 6),
+        child: Row(
+          children: [
+            Container(
+              width: 85,
+              height: 85,
+              decoration: BoxDecoration(
+                color: Colors.orange.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.restaurant,
+                size: 40,
+                color: Colors.orange,
+              ),
+            ),
 
-                Text(
-                  cuisine,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
-                ),
+            const SizedBox(width: 15),
 
-                const SizedBox(height: 10),
-
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star,
-                      size: 18,
-                      color: Colors.orange,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
 
-                    const SizedBox(width: 4),
+                  const SizedBox(height: 6),
 
-                    Text(rating),
-
-                    const SizedBox(width: 15),
-
-                    const Icon(
-                      Icons.access_time,
-                      size: 18,
+                  Text(
+                    cuisine,
+                    style: const TextStyle(
                       color: Colors.grey,
+                      fontSize: 13,
                     ),
+                  ),
 
-                    const SizedBox(width: 4),
+                  const SizedBox(height: 10),
 
-                    Text(deliveryTime),
-                  ],
-                ),
-              ],
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        size: 18,
+                        color: Colors.orange,
+                      ),
+
+                      const SizedBox(width: 4),
+
+                      Text(rating),
+
+                      const SizedBox(width: 15),
+
+                      const Icon(
+                        Icons.access_time,
+                        size: 18,
+                        color: Colors.grey,
+                      ),
+
+                      const SizedBox(width: 4),
+
+                      Text(deliveryTime),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

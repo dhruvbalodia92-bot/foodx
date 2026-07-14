@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'providers/cart_provider.dart';
 import 'constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'screens/splash/splash_screen.dart';
@@ -11,7 +13,12 @@ Future<void> main() async {
 
   await Firebase.initializeApp();
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => CartProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
