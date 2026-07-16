@@ -4,6 +4,8 @@ import '../../providers/cart_provider.dart';
 import '../address/add_address_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../order/order_success_screen.dart';
+import '../../services/order_storage_service.dart';
 
 
 class CheckoutScreen extends StatefulWidget {
@@ -399,18 +401,47 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: ElevatedButton(
                 onPressed: cart.items.isEmpty
                     ? null
-                    : () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        selectedPaymentMethod == "COD"
-                            ? "COD selected — Order placement coming next"
-                            : "Online payment selected — Payment integration coming next",
+                    : () async {
+                  final String orderId =
+                      "FOODX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+
+                  final int orderTotal = grandTotal;
+                  final String orderPaymentMethod = selectedPaymentMethod;
+
+                  // Cart items ko clear karne se pehle save karo
+                  final List<Map<String, dynamic>> orderItems = cart.items.map((item) {
+                    return {
+                      'name': item.name,
+                      'price': item.price,
+                      'quantity': item.quantity,
+                      'totalPrice': item.totalPrice,
+                    };
+                  }).toList();
+
+                  // Order ko local storage me permanently save karo
+                  await OrderStorageService.saveOrder(
+                    orderId: orderId,
+                    totalAmount: orderTotal,
+                    paymentMethod: orderPaymentMethod,
+                    items: orderItems,
+                  );
+
+                  if (!context.mounted) return;
+
+                  // Order successfully save hone ke baad cart clear karo
+                  cart.clearCart();
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrderSuccessScreen(
+                        orderId: orderId,
+                        totalAmount: orderTotal,
+                        paymentMethod: orderPaymentMethod,
                       ),
                     ),
                   );
                 },
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,

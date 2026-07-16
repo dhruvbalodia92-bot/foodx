@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../restaurant/restaurant_details_screen.dart';
+import '../order/my_orders_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -52,12 +53,23 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.orange,
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyOrdersScreen(),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: const CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Colors.orange,
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
