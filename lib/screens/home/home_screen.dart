@@ -1,329 +1,238 @@
 import 'package:flutter/material.dart';
-import '../restaurant/restaurant_details_screen.dart';
-import '../order/my_orders_screen.dart';
+
+import '../../data/dummy_restaurants.dart';
+import '../../models/restaurant_model.dart';
+import '../../widgets/restaurant_card.dart';
+
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+const HomeScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+backgroundColor: Colors.grey[100],
 
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+body: SafeArea(
+child: SingleChildScrollView(
+child: Padding(
+padding: const EdgeInsets.all(20),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
 
-                // Location Section
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on,
-                      color: Colors.orange,
-                      size: 28,
-                    ),
+children: [
 
-                    const SizedBox(width: 8),
+/// Location
+Row(
+children: [
 
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "Deliver to",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
-                            ),
-                          ),
+const Icon(
+Icons.location_on,
+color: Colors.orange,
+size: 28,
+),
 
-                          Text(
-                            "Phulera, Rajasthan",
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+const SizedBox(width: 8),
 
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MyOrdersScreen(),
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(50),
-                      child: const CircleAvatar(
-                        radius: 22,
-                        backgroundColor: Colors.orange,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+const Expanded(
+child: Column(
+crossAxisAlignment:
+CrossAxisAlignment.start,
+children: [
 
-                const SizedBox(height: 30),
+Text(
+"Deliver to",
+style: TextStyle(
+fontSize: 13,
+color: Colors.grey,
+),
+),
 
-                const Text(
-                  "What would you like\nto eat today? 🍔",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                ),
+Text(
+"Phulera, Rajasthan",
+style: TextStyle(
+fontSize: 17,
+fontWeight: FontWeight.bold,
+),
+),
+],
+),
+),
 
-                const SizedBox(height: 25),
+InkWell(
+borderRadius:
+BorderRadius.circular(50),
 
-                // Search Bar
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Search for food or restaurants",
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Colors.orange,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
+onTap: () {
+Navigator.push(
+context,
+MaterialPageRoute(
+builder: (_) =>
+const ProfileScreen(),
+),
+);
+},
 
-                const SizedBox(height: 30),
+child: const CircleAvatar(
+radius: 22,
+backgroundColor: Colors.orange,
+child: Icon(
+Icons.person,
+color: Colors.white,
+),
+),
+),
+],
+),
 
-                const Text(
-                  "Categories",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 15),
+const SizedBox(height: 30),
 
-                SizedBox(
-                  height: 100,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: const [
+const Text(
+"What would you like\nto eat today? 🍔",
+style: TextStyle(
+fontSize: 28,
+fontWeight: FontWeight.bold,
+height: 1.2,
+),
+),
 
-                      // Pizza
-                      _CategoryItem(
-                        icon: Icons.local_pizza,
-                        name: "Pizza",
-                      ),
+const SizedBox(height: 25),
 
-                      SizedBox(width: 15),
+TextField(
+decoration: InputDecoration(
+hintText:
+"Search food or restaurant",
 
-                      // Burger
-                      _CategoryItem(
-                        icon: Icons.lunch_dining,
-                        name: "Burger",
-                      ),
+prefixIcon: const Icon(
+Icons.search,
+color: Colors.orange,
+),
 
-                      SizedBox(width: 15),
+filled: true,
+fillColor: Colors.white,
 
-                      // Indian Food
-                      _CategoryItem(
-                        icon: Icons.restaurant,
-                        name: "Indian",
-                      ),
+border: OutlineInputBorder(
+borderRadius:
+BorderRadius.circular(15),
+borderSide:
+BorderSide.none,
+),
+),
+),
 
-                      SizedBox(width: 15),
+const SizedBox(height: 30),
 
-                      // Chinese
-                      _CategoryItem(
-                        icon: Icons.ramen_dining,
-                        name: "Chinese",
-                      ),
+const Text(
+"Categories",
+style: TextStyle(
+fontSize: 22,
+fontWeight: FontWeight.bold,
+),
+),
 
-                      SizedBox(width: 15),
+const SizedBox(height: 15),
 
-                      // Sweets
-                      _CategoryItem(
-                        icon: Icons.cake,
-                        name: "Sweets",
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
+SizedBox(
+height: 100,
 
-                const Text(
-                  "Popular Restaurants",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+child: ListView(
+scrollDirection:
+Axis.horizontal,
 
-                const SizedBox(height: 15),
+children: const [
 
-                const _RestaurantCard(
-                  name: "FoodX Kitchen",
-                  cuisine: "North Indian • Chinese • Fast Food",
-                  rating: "4.5",
-                  deliveryTime: "25-30 min",
-                ),
+_CategoryItem(
+icon: Icons.local_pizza,
+name: "Pizza",
+),
 
-                const SizedBox(height: 15),
+SizedBox(width: 15),
 
-                const _RestaurantCard(
-                  name: "Shree Restaurant",
-                  cuisine: "Indian • Rajasthani • Thali",
-                  rating: "4.3",
-                  deliveryTime: "30-35 min",
-                ),
+_CategoryItem(
+icon:
+Icons.lunch_dining,
+name: "Burger",
+),
 
-                const SizedBox(height: 15),
+SizedBox(width: 15),
 
-                const _RestaurantCard(
-                  name: "Pizza Hub",
-                  cuisine: "Pizza • Burger • Fast Food",
-                  rating: "4.2",
-                  deliveryTime: "20-25 min",
-                ),
+_CategoryItem(
+icon:
+Icons.restaurant,
+name: "Indian",
+),
 
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+SizedBox(width: 15),
+
+_CategoryItem(
+icon:
+Icons.ramen_dining,
+name: "Chinese",
+),
+
+SizedBox(width: 15),
+
+_CategoryItem(
+icon: Icons.cake,
+name: "Sweets",
+),
+],
+),
+),
+
+const SizedBox(height: 30),
+
+const Text(
+"Popular Restaurants",
+style: TextStyle(
+fontSize: 22,
+fontWeight: FontWeight.bold,
+),
+),
+
+const SizedBox(height: 15),
+
+ListView.separated(
+
+shrinkWrap: true,
+
+physics:
+const NeverScrollableScrollPhysics(),
+
+itemCount:
+dummyRestaurants.length,
+
+separatorBuilder:
+(context, index) =>
+const SizedBox(
+height: 15,
+),
+
+itemBuilder:
+(context, index) {
+
+RestaurantModel
+restaurant =
+dummyRestaurants[
+index];
+
+return RestaurantCard(
+restaurant:
+restaurant,
+);
+},
+),
+],
+),
+),
+),
+),
+);
 }
-class _RestaurantCard extends StatelessWidget {
-  final String name;
-  final String cuisine;
-  final String rating;
-  final String deliveryTime;
-
-  const _RestaurantCard({
-    required this.name,
-    required this.cuisine,
-    required this.rating,
-    required this.deliveryTime,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(15),
-
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RestaurantDetailsScreen(
-              restaurantName: name,
-              cuisine: cuisine,
-              rating: rating,
-              deliveryTime: deliveryTime,
-            ),
-          ),
-        );
-      },
-
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(15),
-
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-        ),
-
-        child: Row(
-          children: [
-            Container(
-              width: 85,
-              height: 85,
-              decoration: BoxDecoration(
-                color: Colors.orange.shade100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.restaurant,
-                size: 40,
-                color: Colors.orange,
-              ),
-            ),
-
-            const SizedBox(width: 15),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  Text(
-                    cuisine,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 13,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        size: 18,
-                        color: Colors.orange,
-                      ),
-
-                      const SizedBox(width: 4),
-
-                      Text(rating),
-
-                      const SizedBox(width: 15),
-
-                      const Icon(
-                        Icons.access_time,
-                        size: 18,
-                        color: Colors.grey,
-                      ),
-
-                      const SizedBox(width: 4),
-
-                      Text(deliveryTime),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
+
 class _CategoryItem extends StatelessWidget {
   final IconData icon;
   final String name;
@@ -340,20 +249,34 @@ class _CategoryItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 35,
-            color: Colors.orange,
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: Colors.orange.shade50,
+            child: Icon(
+              icon,
+              color: Colors.orange,
+              size: 28,
+            ),
           ),
-          const SizedBox(height: 8),
+
+          const SizedBox(height: 10),
+
           Text(
             name,
             style: const TextStyle(
               fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
           ),
         ],

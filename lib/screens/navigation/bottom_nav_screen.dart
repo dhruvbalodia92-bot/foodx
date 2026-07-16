@@ -3,6 +3,7 @@ import '../profile/profile_screen.dart';
 import '../home/home_screen.dart';
 import '../cart/cart_screen.dart';
 import '../order/my_orders_screen.dart';
+import '../search/search_screen.dart';
 
 class BottomNavScreen extends StatefulWidget {
   const BottomNavScreen({super.key});
@@ -16,6 +17,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
 
   final List<Widget> pages = [
     const HomeScreen(),
+    const SearchScreen(),
     const CartScreen(),
     const MyOrdersScreen(),
     const ProfileScreen(),
@@ -40,6 +42,11 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: "Home",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.search_outlined),
+            selectedIcon: Icon(Icons.search),
+            label: "Search",
           ),
 
           NavigationDestination(
