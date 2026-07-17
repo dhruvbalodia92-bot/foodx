@@ -12,6 +12,7 @@ class RestaurantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Image Path: ${restaurant.imagePath}");
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
@@ -28,11 +29,13 @@ class RestaurantCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => RestaurantDetailsScreen(
+              restaurantId: restaurant.id,
               restaurantName: restaurant.name,
               cuisine: restaurant.cuisine,
               rating: restaurant.rating,
               deliveryTime: restaurant.deliveryTime,
-            ),
+              imagePath: restaurant.imagePath,
+            )
           ),
         );
       },
@@ -47,20 +50,26 @@ class RestaurantCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                Image.asset(
+
+                Image.network(
                   restaurant.imagePath,
                   height: 170,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    debugPrint("IMAGE ERROR: $error");
+                    debugPrint("URL: ${restaurant.imagePath}");
                     return Container(
                       height: 170,
-                      color: Colors.orange.shade100,
+                      color: Colors.red,
                       child: const Center(
-                        child: Icon(
-                          Icons.restaurant,
-                          size: 60,
-                          color: Colors.orange,
+                        child: Text(
+                          "Image Failed",
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     );

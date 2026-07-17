@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-
-import '../../data/dummy_restaurants.dart';
 import '../../models/restaurant_model.dart';
 import '../../widgets/restaurant_card.dart';
-
+import '../../services/firestore_service.dart';
 import '../profile/profile_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final FirestoreService _firestoreService = FirestoreService();
 
 @override
 Widget build(BuildContext context) {
@@ -194,36 +199,43 @@ fontWeight: FontWeight.bold,
 
 const SizedBox(height: 15),
 
-ListView.separated(
+  FutureBuilder<List<RestaurantModel>>(
+    future: _firestoreService.getRestaurants(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
 
-shrinkWrap: true,
+      if (snapshot.hasError) {
+        return Center(
+          child: Text("Error: ${snapshot.error}"),
+        );
+      }
 
-physics:
-const NeverScrollableScrollPhysics(),
+      final restaurants = snapshot.data ?? [];
 
-itemCount:
-dummyRestaurants.length,
+      if (restaurants.isEmpty) {
+        return const Center(
+          child: Text("No Restaurants Found"),
+        );
+      }
 
-separatorBuilder:
-(context, index) =>
-const SizedBox(
-height: 15,
-),
-
-itemBuilder:
-(context, index) {
-
-RestaurantModel
-restaurant =
-dummyRestaurants[
-index];
-
-return RestaurantCard(
-restaurant:
-restaurant,
-);
-},
-),
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: restaurants.length,
+        separatorBuilder: (context, index) =>
+        const SizedBox(height: 15),
+        itemBuilder: (context, index) {
+          return RestaurantCard(
+            restaurant: restaurants[index],
+          );
+        },
+      );
+    },
+  ),
 ],
 ),
 ),

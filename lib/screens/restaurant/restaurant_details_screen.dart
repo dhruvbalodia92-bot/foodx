@@ -1,282 +1,292 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../models/menu_model.dart';
 import '../../providers/cart_provider.dart';
+import '../../services/menu_service.dart';
 import '../cart/cart_screen.dart';
 
-class RestaurantDetailsScreen extends StatelessWidget {
+class RestaurantDetailsScreen extends StatefulWidget {
+  final String restaurantId;
   final String restaurantName;
   final String cuisine;
   final String rating;
   final String deliveryTime;
+  final String imagePath;
 
   const RestaurantDetailsScreen({
     super.key,
+    required this.restaurantId,
     required this.restaurantName,
     required this.cuisine,
     required this.rating,
     required this.deliveryTime,
+    required this.imagePath,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
+  State<RestaurantDetailsScreen> createState() =>
+      _RestaurantDetailsScreenState();
+}
 
-      appBar: AppBar(
-        title: Text(
-          restaurantName,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
+final MenuService _menuService = MenuService();
 
-      // VIEW CART BAR
-      bottomNavigationBar: Consumer<CartProvider>(
-        builder: (context, cart, child) {
-          if (cart.totalQuantity == 0) {
-            return const SizedBox.shrink();
-          }
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+backgroundColor: Colors.grey[100],
 
-          return SafeArea(
-            child: Container(
-              margin: const EdgeInsets.all(15),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 15,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${cart.totalQuantity} item${cart.totalQuantity > 1 ? 's' : ''}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
+appBar: AppBar(
+title: Text(
+widget.restaurantName,
+style: const TextStyle(
+fontWeight: FontWeight.bold,
+),
+),
+),
 
-                        const SizedBox(height: 3),
+bottomNavigationBar: Consumer<CartProvider>(
+builder: (context, cart, child) {
+if (cart.totalQuantity == 0) {
+return const SizedBox.shrink();
+}
 
-                        Text(
-                          "₹${cart.totalPrice}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+return SafeArea(
+child: Container(
+margin: const EdgeInsets.all(15),
+padding: const EdgeInsets.symmetric(
+horizontal: 20,
+vertical: 15,
+),
+decoration: BoxDecoration(
+color: Colors.orange,
+borderRadius: BorderRadius.circular(15),
+),
+child: Row(
+children: [
+Expanded(
+child: Column(
+mainAxisSize: MainAxisSize.min,
+crossAxisAlignment:
+CrossAxisAlignment.start,
+children: [
+Text(
+"${cart.totalQuantity} item${cart.totalQuantity > 1 ? 's' : ''}",
+style: const TextStyle(
+color: Colors.white,
+),
+),
 
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CartScreen(),
-                        ),
-                      );
-                    },
-                    child: const Row(
-                      children: [
-                        Text(
-                          "VIEW CART",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+const SizedBox(height: 4),
 
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+Text(
+"₹${cart.totalPrice}",
+style: const TextStyle(
+color: Colors.white,
+fontSize: 18,
+fontWeight: FontWeight.bold,
+),
+),
+],
+),
+),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Restaurant Image Placeholder
-              Container(
-                width: double.infinity,
-                height: 180,
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(
-                  Icons.restaurant,
-                  size: 80,
-                  color: Colors.orange,
-                ),
-              ),
+TextButton(
+onPressed: () {
+Navigator.push(
+context,
+MaterialPageRoute(
+builder: (_) => const CartScreen(),
+),
+);
+},
+child: const Row(
+children: [
+Text(
+"VIEW CART",
+style: TextStyle(
+color: Colors.white,
+fontWeight: FontWeight.bold,
+),
+),
+SizedBox(width: 5),
+Icon(
+Icons.arrow_forward,
+color: Colors.white,
+),
+],
+),
+),
+],
+),
+),
+);
+},
+),
 
-              const SizedBox(height: 25),
+body: FutureBuilder<List<MenuModel>>(
+future: _menuService.getMenu(widget.restaurantId),
 
-              Text(
-                restaurantName,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+builder: (context, snapshot) {
 
-              const SizedBox(height: 8),
+if (snapshot.connectionState ==
+ConnectionState.waiting) {
+return const Center(
+child: CircularProgressIndicator(),
+);
+}
 
-              Text(
-                cuisine,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey,
-                ),
-              ),
+if (snapshot.hasError) {
+return Center(
+child: Text(snapshot.error.toString()),
+);
+}
 
-              const SizedBox(height: 15),
+final menu = snapshot.data ?? [];
 
-              Row(
-                children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.orange,
-                    size: 20,
-                  ),
+return SingleChildScrollView(
+child: Padding(
+padding: const EdgeInsets.all(20),
 
-                  const SizedBox(width: 5),
+child: Column(
+crossAxisAlignment:
+CrossAxisAlignment.start,
 
-                  Text(
-                    rating,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+children: [
 
-                  const SizedBox(width: 20),
+ClipRRect(
+borderRadius:
+BorderRadius.circular(20),
 
-                  const Icon(
-                    Icons.access_time,
-                    color: Colors.grey,
-                    size: 20,
-                  ),
+child: Image.network(
+widget.imagePath,
+height: 180,
+width: double.infinity,
+fit: BoxFit.cover,
+),
+),
 
-                  const SizedBox(width: 5),
+const SizedBox(height: 25),
 
-                  Text(deliveryTime),
-                ],
-              ),
+Text(
+widget.restaurantName,
+style: const TextStyle(
+fontSize: 28,
+fontWeight: FontWeight.bold,
+),
+),
 
-              const SizedBox(height: 30),
+const SizedBox(height: 8),
 
-              const Divider(),
+Text(
+widget.cuisine,
+style: const TextStyle(
+color: Colors.grey,
+),
+),
 
-              const SizedBox(height: 20),
+const SizedBox(height: 15),
 
-              const Text(
-                "Menu",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+Row(
+children: [
 
-              const SizedBox(height: 20),
+const Icon(
+Icons.star,
+color: Colors.orange,
+),
 
-              const _MenuItem(
-                name: "Margherita Pizza",
-                description: "Classic pizza with cheese and tomato sauce",
-                price: 199,
-                imagePath: "assets/images/pizza.jpg",
-              ),
+const SizedBox(width: 5),
 
-              const SizedBox(height: 15),
+Text(widget.rating),
 
-              const _MenuItem(
-                name: "Veg Burger",
-                description: "Crispy veg patty with fresh vegetables",
-                price: 99,
-                imagePath: "assets/images/veg burger.jpg",
-              ),
+const SizedBox(width: 20),
 
-              const SizedBox(height: 15),
+const Icon(
+Icons.access_time,
+color: Colors.grey,
+),
 
-              const _MenuItem(
-                name: "Paneer Tikka",
-                description: "Spicy grilled paneer with vegetables",
-                price: 249,
-                imagePath: "assets/images/paneer tika.jpg",
-              ),
+const SizedBox(width: 5),
 
-              const SizedBox(height: 30),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+Text(widget.deliveryTime),
+],
+),
+
+const SizedBox(height: 25),
+
+const Divider(),
+
+const SizedBox(height: 20),
+
+const Text(
+"Menu",
+style: TextStyle(
+fontSize: 24,
+fontWeight: FontWeight.bold,
+),
+),
+
+const SizedBox(height: 20),
+
+if (menu.isEmpty)
+const Center(
+child: Text(
+"No Menu Available",
+),
+),
+
+// 👇 Part 2 yahin se continue hoga
+  if (menu.isNotEmpty)
+    ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: menu.length,
+      separatorBuilder: (context, index) =>
+      const SizedBox(height: 15),
+      itemBuilder: (context, index) {
+        return _MenuItem(menu: menu[index]);
+      },
+    ),
+],
+),
+),
+);
+},
+),
+);
+}
 }
 
 class _MenuItem extends StatelessWidget {
-  final String name;
-  final String description;
-  final int price;
-  final String imagePath;
+  final MenuModel menu;
 
   const _MenuItem({
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.imagePath,
+    required this.menu,
   });
 
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
-    final quantity = cart.getQuantity(name);
+    final quantity = cart.getQuantity(menu.name);
 
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
       ),
-
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Veg Indicator
                 Container(
                   width: 16,
                   height: 16,
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.green,
-                      width: 2,
-                    ),
+                    border: Border.all(color: Colors.green, width: 2),
                   ),
                   child: const Center(
                     child: CircleAvatar(
@@ -289,7 +299,7 @@ class _MenuItem extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  name,
+                  menu.name,
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -299,7 +309,7 @@ class _MenuItem extends StatelessWidget {
                 const SizedBox(height: 5),
 
                 Text(
-                  description,
+                  menu.description,
                   style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 13,
@@ -309,106 +319,123 @@ class _MenuItem extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  "₹$price",
+                  "₹${menu.price}",
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
+                if (!menu.isAvailable)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Text(
+                      "Currently Unavailable",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
 
           const SizedBox(width: 12),
 
-          // Dish Image + ADD Button
           Column(
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  imagePath,
+                child: Image.network(
+                  menu.imagePath,
                   width: 100,
                   height: 85,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 100,
+                      height: 85,
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.fastfood),
+                    );
+                  },
                 ),
               ),
 
               const SizedBox(height: 8),
 
-              quantity == 0
-                  ? OutlinedButton(
-                onPressed: () {
-                  context.read<CartProvider>().addItem(
-                    name,
-                    price,
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.orange,
-                  side: const BorderSide(
+              if (menu.isAvailable)
+                quantity == 0
+                    ? OutlinedButton(
+                  onPressed: () {
+                    context.read<CartProvider>().addItem(
+                      menu.name,
+                      menu.price,
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(
+                      color: Colors.orange,
+                    ),
+                  ),
+                  child: const Text(
+                    "ADD",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+                    : Container(
+                  decoration: BoxDecoration(
                     color: Colors.orange,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                child: const Text(
-                  "ADD",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-                  : Container(
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        context
-                            .read<CartProvider>()
-                            .removeOneItem(name);
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.remove,
-                          color: Colors.white,
-                          size: 20,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          context
+                              .read<CartProvider>()
+                              .removeOneItem(menu.name);
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.remove,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
 
-                    Text(
-                      quantity.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    InkWell(
-                      onTap: () {
-                        context.read<CartProvider>().addItem(
-                          name,
-                          price,
-                        );
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.add,
+                      Text(
+                        quantity.toString(),
+                        style: const TextStyle(
                           color: Colors.white,
-                          size: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
+
+                      InkWell(
+                        onTap: () {
+                          context.read<CartProvider>().addItem(
+                            menu.name,
+                            menu.price,
+                          );
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ],

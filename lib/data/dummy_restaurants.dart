@@ -2,6 +2,7 @@ import '../models/restaurant_model.dart';
 
 const List<RestaurantModel> dummyRestaurants = [
   RestaurantModel(
+    id: "1",
     name: "FoodX Kitchen",
     cuisine: "North Indian • Chinese • Fast Food",
     rating: "4.5",
@@ -11,6 +12,7 @@ const List<RestaurantModel> dummyRestaurants = [
   ),
 
   RestaurantModel(
+    id: "2",
     name: "Shree Restaurant",
     cuisine: "Indian • Rajasthani • Thali",
     rating: "4.3",
@@ -20,6 +22,7 @@ const List<RestaurantModel> dummyRestaurants = [
   ),
 
   RestaurantModel(
+    id: "3",
     name: "Pizza Hub",
     cuisine: "Pizza • Burger • Fast Food",
     rating: "4.2",

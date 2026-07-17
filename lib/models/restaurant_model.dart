@@ -1,4 +1,5 @@
 class RestaurantModel {
+  final String id;
   final String name;
   final String cuisine;
   final String rating;
@@ -7,6 +8,7 @@ class RestaurantModel {
   final bool isOpen;
 
   const RestaurantModel({
+    required this.id,
     required this.name,
     required this.cuisine,
     required this.rating,
