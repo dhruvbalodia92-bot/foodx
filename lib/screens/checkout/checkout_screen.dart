@@ -5,7 +5,7 @@ import '../address/add_address_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../order/order_success_screen.dart';
-import '../../services/order_storage_service.dart';
+import '../../services/firestore_order_service.dart';
 
 
 class CheckoutScreen extends StatefulWidget {
@@ -16,6 +16,8 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  final FirestoreOrderService _orderService =
+  FirestoreOrderService();
   String selectedPaymentMethod = "COD";
   Map<String, String>? selectedAddress;
   String get verifiedPhoneNumber {
@@ -419,11 +421,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   }).toList();
 
                   // Order ko local storage me permanently save karo
-                  await OrderStorageService.saveOrder(
+                  await _orderService.placeOrder(
                     orderId: orderId,
                     totalAmount: orderTotal,
                     paymentMethod: orderPaymentMethod,
                     items: orderItems,
+                    address: selectedAddress,
                   );
 
                   if (!context.mounted) return;
@@ -476,6 +479,7 @@ class _PaymentOption extends StatelessWidget {
   final String value;
   final String selectedValue;
   final ValueChanged<String> onChanged;
+
 
   const _PaymentOption({
     required this.icon,
