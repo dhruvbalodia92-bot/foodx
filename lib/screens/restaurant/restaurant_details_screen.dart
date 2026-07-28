@@ -285,7 +285,7 @@ class _MenuItem extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  menu.imagePath,
+                  menu.imageUrl,
                   height: 90,
                   width: 90,
                   fit: BoxFit.cover,
@@ -339,7 +339,7 @@ class _MenuItem extends StatelessWidget {
 
               quantity == 0
                   ? ElevatedButton(
-                onPressed: menu.isAvailable
+                onPressed: menu.available
                     ? () {
                   cart.addItem(
                     menu.name,

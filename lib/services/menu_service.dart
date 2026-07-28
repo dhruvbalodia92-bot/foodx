@@ -18,9 +18,10 @@ class MenuService {
         id: doc.id,
         name: data['name'] ?? '',
         description: data['description'] ?? '',
-        price: (data['price'] as num).toInt(),
-        imagePath: data['imagePath'] ?? '',
-        isAvailable: data['isAvailable'] ?? true,
+        price: (data['price'] ?? 0) as int,
+        imageUrl: data['imageUrl'] ?? '',
+        category: data['category'] ?? '',
+        available: data['available'] ?? true,
       );
     }).toList();
   }

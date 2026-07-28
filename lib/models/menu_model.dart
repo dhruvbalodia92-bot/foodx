@@ -3,15 +3,17 @@ class MenuModel {
   final String name;
   final String description;
   final int price;
-  final String imagePath;
-  final bool isAvailable;
+  final String imageUrl;
+  final String category;
+  final bool available;
 
   const MenuModel({
     required this.id,
     required this.name,
     required this.description,
     required this.price,
-    required this.imagePath,
-    required this.isAvailable,
+    required this.imageUrl,
+    required this.category,
+    required this.available,
   });
 }
