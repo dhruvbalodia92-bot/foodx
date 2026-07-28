@@ -2,26 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/menu_model.dart';
+import '../../models/restaurant_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../services/menu_service.dart';
 import '../cart/cart_screen.dart';
 
 class RestaurantDetailsScreen extends StatefulWidget {
-  final String restaurantId;
-  final String restaurantName;
-  final String cuisine;
-  final String rating;
-  final String deliveryTime;
-  final String imagePath;
+  final RestaurantModel restaurant;
 
   const RestaurantDetailsScreen({
     super.key,
-    required this.restaurantId,
-    required this.restaurantName,
-    required this.cuisine,
-    required this.rating,
-    required this.deliveryTime,
-    required this.imagePath,
+    required this.restaurant,
   });
 
   @override
@@ -39,7 +30,7 @@ backgroundColor: Colors.grey[100],
 
 appBar: AppBar(
 title: Text(
-widget.restaurantName,
+widget.restaurant.name,
 style: const TextStyle(
 fontWeight: FontWeight.bold,
 ),
@@ -126,10 +117,9 @@ color: Colors.white,
 ),
 
 body: FutureBuilder<List<MenuModel>>(
-future: _menuService.getMenu(widget.restaurantId),
+future: _menuService.getMenu(widget.restaurant.id),
 
 builder: (context, snapshot) {
-
 if (snapshot.connectionState ==
 ConnectionState.waiting) {
 return const Center(
@@ -160,17 +150,30 @@ borderRadius:
 BorderRadius.circular(20),
 
 child: Image.network(
-widget.imagePath,
+widget.restaurant.imageUrl,
 height: 180,
 width: double.infinity,
 fit: BoxFit.cover,
+errorBuilder:
+(context, error, stackTrace) {
+return Container(
+height: 180,
+color: Colors.grey.shade300,
+child: const Center(
+child: Icon(
+Icons.restaurant,
+size: 60,
+),
+),
+);
+},
 ),
 ),
 
 const SizedBox(height: 25),
 
 Text(
-widget.restaurantName,
+widget.restaurant.name,
 style: const TextStyle(
 fontSize: 28,
 fontWeight: FontWeight.bold,
@@ -180,7 +183,7 @@ fontWeight: FontWeight.bold,
 const SizedBox(height: 8),
 
 Text(
-widget.cuisine,
+widget.restaurant.cuisine,
 style: const TextStyle(
 color: Colors.grey,
 ),
@@ -198,7 +201,7 @@ color: Colors.orange,
 
 const SizedBox(width: 5),
 
-Text(widget.rating),
+Text(widget.restaurant.rating),
 
 const SizedBox(width: 20),
 
@@ -209,7 +212,7 @@ color: Colors.grey,
 
 const SizedBox(width: 5),
 
-Text(widget.deliveryTime),
+Text(widget.restaurant.deliveryTime),
 ],
 ),
 
@@ -236,18 +239,18 @@ child: Text(
 ),
 ),
 
-// 👇 Part 2 yahin se continue hoga
-  if (menu.isNotEmpty)
-    ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: menu.length,
-      separatorBuilder: (context, index) =>
-      const SizedBox(height: 15),
-      itemBuilder: (context, index) {
-        return _MenuItem(menu: menu[index]);
-      },
-    ),
+if (menu.isNotEmpty)
+ListView.separated(
+shrinkWrap: true,
+physics:
+const NeverScrollableScrollPhysics(),
+itemCount: menu.length,
+separatorBuilder: (context, index) =>
+const SizedBox(height: 15),
+itemBuilder: (context, index) {
+return _MenuItem(menu: menu[index]);
+},
+),
 ],
 ),
 ),
@@ -257,7 +260,6 @@ child: Text(
 );
 }
 }
-
 class _MenuItem extends StatelessWidget {
   final MenuModel menu;
 
@@ -267,95 +269,30 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cart = context.watch<CartProvider>();
-    final quantity = cart.getQuantity(menu.name);
+    return Consumer<CartProvider>(
+      builder: (context, cart, child) {
+        final quantity = cart.getQuantity(menu.name);
 
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 2),
-                  ),
-                  child: const Center(
-                    child: CircleAvatar(
-                      radius: 4,
-                      backgroundColor: Colors.green,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  menu.name,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  menu.description,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  "₹${menu.price}",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                if (!menu.isAvailable)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Text(
-                      "Currently Unavailable",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+        return Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
           ),
-
-          const SizedBox(width: 12),
-
-          Column(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
                   menu.imagePath,
-                  width: 100,
-                  height: 85,
+                  height: 90,
+                  width: 90,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      width: 100,
-                      height: 85,
+                      height: 90,
+                      width: 90,
                       color: Colors.grey.shade300,
                       child: const Icon(Icons.fastfood),
                     );
@@ -363,83 +300,104 @@ class _MenuItem extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(width: 15),
 
-              if (menu.isAvailable)
-                quantity == 0
-                    ? OutlinedButton(
-                  onPressed: () {
-                    context.read<CartProvider>().addItem(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
                       menu.name,
-                      menu.price,
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.orange,
-                    side: const BorderSide(
-                      color: Colors.orange,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "ADD",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
+
+                    const SizedBox(height: 5),
+
+                    Text(
+                      menu.description,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
                     ),
-                  ),
-                )
-                    : Container(
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          context
-                              .read<CartProvider>()
-                              .removeOneItem(menu.name);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Icon(
-                            Icons.remove,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
 
-                      Text(
-                        quantity.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    const SizedBox(height: 8),
 
-                      InkWell(
-                        onTap: () {
-                          context.read<CartProvider>().addItem(
-                            menu.name,
-                            menu.price,
-                          );
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          ),
-                        ),
+                    Text(
+                      "₹${menu.price}",
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
+
+              quantity == 0
+                  ? ElevatedButton(
+                onPressed: menu.isAvailable
+                    ? () {
+                  cart.addItem(
+                    menu.name,
+                    menu.price,
+                  );
+                }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
+                child: const Text(
+                  "ADD",
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+                  : Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        cart.removeOneItem(menu.name);
+                      },
+                      icon: const Icon(
+                        Icons.remove,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      quantity.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        cart.addItem(
+                          menu.name,
+                          menu.price,
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

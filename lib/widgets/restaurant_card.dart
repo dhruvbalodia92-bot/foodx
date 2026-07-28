@@ -12,11 +12,10 @@ class RestaurantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Image Path: ${restaurant.imagePath}");
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
-        if (!restaurant.isOpen) {
+        if (!restaurant.status) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Restaurant is currently closed"),
@@ -29,13 +28,8 @@ class RestaurantCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => RestaurantDetailsScreen(
-              restaurantId: restaurant.id,
-              restaurantName: restaurant.name,
-              cuisine: restaurant.cuisine,
-              rating: restaurant.rating,
-              deliveryTime: restaurant.deliveryTime,
-              imagePath: restaurant.imagePath,
-            )
+              restaurant: restaurant,
+            ),
           ),
         );
       },
@@ -50,26 +44,19 @@ class RestaurantCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-
                 Image.network(
-                  restaurant.imagePath,
+                  restaurant.imageUrl,
                   height: 170,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
-                  },
                   errorBuilder: (context, error, stackTrace) {
-                    debugPrint("IMAGE ERROR: $error");
-                    debugPrint("URL: ${restaurant.imagePath}");
                     return Container(
                       height: 170,
-                      color: Colors.red,
+                      color: Colors.grey.shade300,
                       child: const Center(
-                        child: Text(
-                          "Image Failed",
-                          style: TextStyle(color: Colors.white),
+                        child: Icon(
+                          Icons.restaurant,
+                          size: 50,
                         ),
                       ),
                     );
@@ -85,13 +72,12 @@ class RestaurantCard extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: restaurant.isOpen
-                          ? Colors.green
-                          : Colors.red,
+                      color:
+                      restaurant.status ? Colors.green : Colors.red,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      restaurant.isOpen ? "OPEN" : "CLOSED",
+                      restaurant.status ? "OPEN" : "CLOSED",
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

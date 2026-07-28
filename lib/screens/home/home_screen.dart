@@ -199,8 +199,9 @@ fontWeight: FontWeight.bold,
 
 const SizedBox(height: 15),
 
-  FutureBuilder<List<RestaurantModel>>(
-    future: _firestoreService.getRestaurants(),
+
+  StreamBuilder<List<RestaurantModel>>(
+    stream: _firestoreService.getRestaurants(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(
