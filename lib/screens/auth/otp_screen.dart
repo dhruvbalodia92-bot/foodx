@@ -324,6 +324,13 @@ const SizedBox(height: 40),
             ),
           );
 
+          navigator.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => const BottomNavScreen(),
+            ),
+                (route) => false,
+          );
+
 
         } on FirebaseAuthException catch (e) {
           if (!mounted) return;
@@ -343,6 +350,7 @@ const SizedBox(height: 40),
       ),
     ),
   ),
+
 
   const SizedBox(height: 20),
 

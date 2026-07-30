@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'favorites_screen.dart';
+import 'addresses_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -87,15 +88,29 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 25),
 
           _menuTile(
-            icon: Icons.receipt_long_outlined,
-            title: "My Orders",
-            onTap: () {},
+            icon: Icons.favorite,
+            title: "My Favorites",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FavoritesScreen(),
+                ),
+              );
+            },
           ),
 
           _menuTile(
             icon: Icons.location_on_outlined,
             title: "Saved Addresses",
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AddressesScreen(),
+                ),
+              );
+            },
           ),
 
           _menuTile(
