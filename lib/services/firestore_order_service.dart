@@ -19,9 +19,14 @@ class FirestoreOrderService {
       "phone": user?.phoneNumber ?? "",
       "totalAmount": totalAmount,
       "paymentMethod": paymentMethod,
+      "paymentStatus": paymentMethod == "COD"
+          ? "Pending"
+          : "Paid",
       "items": items,
       "address": address,
       "status": "Pending",
+      "deliveryPartnerId": "",
+      "deliveryPartnerName": "",
       "createdAt": FieldValue.serverTimestamp(),
     });
   }

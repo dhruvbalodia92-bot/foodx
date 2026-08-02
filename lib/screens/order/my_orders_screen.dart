@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'order_details_screen.dart';
 
 class MyOrdersScreen extends StatelessWidget {
 const MyOrdersScreen({super.key});
@@ -26,8 +27,8 @@ return items
 
 @override
 Widget build(BuildContext context) {
-  final user = FirebaseAuth.instance.currentUser;
-  print("Current UID: ${FirebaseAuth.instance.currentUser?.uid}");
+
+
 
 
 
@@ -54,8 +55,7 @@ style: TextStyle(fontWeight: FontWeight.bold),
 
 
 builder: (context, snapshot) {
-  print(snapshot.error);
-  print(snapshot.hasError);
+
   if (snapshot.hasError) {
     return Center(
       child: Text(snapshot.error.toString()),
@@ -77,9 +77,7 @@ return const _EmptyOrdersView();
 }
 
 final orders = snapshot.data!.docs;
-  for (var doc in orders) {
-    print(doc.data());
-  }
+
 
 return ListView.separated(
 padding: const EdgeInsets.all(20),
@@ -93,7 +91,7 @@ itemBuilder: (context, index) {
   final order =
   orders[index].data() as Map<String, dynamic>;
 
-  print("Order UserId: ${order['userId']}");
+
 
   final List<dynamic> items =
       order['items'] ?? [];
@@ -105,133 +103,134 @@ final DateTime date =
 timestamp?.toDate() ??
 DateTime.now();
 
-return Container(
+return InkWell(
+borderRadius: BorderRadius.circular(18),
+onTap: () {
+Navigator.push(
+context,
+MaterialPageRoute(
+builder: (_) => OrderDetailsScreen(
+orderId: order["orderId"],
+),
+),
+);
+},
+child: Container(
 padding: const EdgeInsets.all(18),
-
 decoration: BoxDecoration(
 color: Colors.white,
-borderRadius:
-BorderRadius.circular(18),
+borderRadius: BorderRadius.circular(18),
 ),
-
 child: Column(
-crossAxisAlignment:
-CrossAxisAlignment.start,
-
+crossAxisAlignment: CrossAxisAlignment.start,
 children: [
-  Row(
-    children: [
-      Expanded(
-        child: Text(
-          order['orderId'] ?? "",
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-
-      Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 5,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade50,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          order['status'] ?? "Pending",
-          style: const TextStyle(
-            color: Colors.orange,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        ),
-      ),
-    ],
-  ),
-
-  const SizedBox(height: 12),
-
-  Text(
-    getItemsSummary(items),
-    maxLines: 2,
-    overflow: TextOverflow.ellipsis,
-    style: const TextStyle(
-      color: Colors.grey,
-      fontSize: 14,
-      height: 1.4,
-    ),
-  ),
-
-  const Padding(
-    padding: EdgeInsets.symmetric(vertical: 14),
-    child: Divider(),
-  ),
-
-  Row(
-    children: [
-      const Icon(
-        Icons.payments_outlined,
-        color: Colors.orange,
-        size: 20,
-      ),
-
-      const SizedBox(width: 7),
-
-      Text(
-        "₹${order['totalAmount']}",
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-
-      const SizedBox(width: 15),
-
-      Expanded(
-        child: Text(
-          order['paymentMethod'] == "COD"
-              ? "Cash on Delivery"
-              : "Online Payment",
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 13,
-          ),
-        ),
-      ),
-    ],
-  ),
-
-  const SizedBox(height: 12),
-
-  Row(
-    children: [
-      const Icon(
-        Icons.access_time,
-        size: 18,
-        color: Colors.grey,
-      ),
-
-      const SizedBox(width: 7),
-
-      Text(
-        formatDate(date),
-        style: const TextStyle(
-          color: Colors.grey,
-          fontSize: 13,
-        ),
-      ),
-    ],
-  ),
+Row(
+children: [
+Expanded(
+child: Text(
+order['orderId'] ?? "",
+style: const TextStyle(
+fontSize: 17,
+fontWeight: FontWeight.bold,
+),
+),
+),
+Container(
+padding: const EdgeInsets.symmetric(
+horizontal: 10,
+vertical: 5,
+),
+decoration: BoxDecoration(
+color: Colors.orange.shade50,
+borderRadius: BorderRadius.circular(20),
+),
+child: Text(
+order['status'] ?? "Pending",
+style: const TextStyle(
+color: Colors.orange,
+fontWeight: FontWeight.bold,
+fontSize: 12,
+),
+),
+),
 ],
 ),
-);
-},
-);
-},
+
+const SizedBox(height: 12),
+
+Text(
+getItemsSummary(items),
+maxLines: 2,
+overflow: TextOverflow.ellipsis,
+style: const TextStyle(
+color: Colors.grey,
+fontSize: 14,
+height: 1.4,
 ),
+),
+
+const Padding(
+padding: EdgeInsets.symmetric(vertical: 14),
+child: Divider(),
+),
+
+Row(
+children: [
+const Icon(
+Icons.payments_outlined,
+color: Colors.orange,
+size: 20,
+),
+const SizedBox(width: 7),
+Text(
+"₹${order['totalAmount']}",
+style: const TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.bold,
+),
+),
+const SizedBox(width: 15),
+Expanded(
+child: Text(
+order['paymentMethod'] == "COD"
+? "Cash on Delivery"
+: "Online Payment",
+style: const TextStyle(
+color: Colors.grey,
+fontSize: 13,
+),
+),
+),
+],
+),
+
+const SizedBox(height: 12),
+
+Row(
+children: [
+const Icon(
+Icons.access_time,
+size: 18,
+color: Colors.grey,
+),
+const SizedBox(width: 7),
+Text(
+formatDate(date),
+style: const TextStyle(
+color: Colors.grey,
+fontSize: 13,
+),
+),
+],
+),
+],
+),
+),
+);
+},
+);
+},
+  ),
 );
 }
 }

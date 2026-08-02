@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/pincode_service.dart';
 import '../../models/address_model.dart';
 import '../../services/firestore_service.dart';
+import '../../services/location_service.dart';
 
 class AddAddressScreen extends StatefulWidget {
   const AddAddressScreen({super.key});
@@ -13,321 +14,388 @@ class AddAddressScreen extends StatefulWidget {
 
 class _AddAddressScreenState
     extends State<AddAddressScreen> {
-final FirestoreService _firestoreService =
-FirestoreService();
+  final FirestoreService _firestoreService =
+  FirestoreService();
 
-final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-final TextEditingController fullNameController =
-TextEditingController();
+  final TextEditingController fullNameController =
+  TextEditingController();
 
-final TextEditingController phoneController =
-TextEditingController();
+  final TextEditingController phoneController =
+  TextEditingController();
 
-final TextEditingController houseController =
-TextEditingController();
+  final TextEditingController houseController =
+  TextEditingController();
 
-final TextEditingController areaController =
-TextEditingController();
+  final TextEditingController areaController =
+  TextEditingController();
 
-final TextEditingController landmarkController =
-TextEditingController();
+  final TextEditingController landmarkController =
+  TextEditingController();
 
-final TextEditingController cityController =
-TextEditingController();
+  final TextEditingController cityController =
+  TextEditingController();
 
-final TextEditingController stateController =
-TextEditingController();
+  final TextEditingController stateController =
+  TextEditingController();
 
-final TextEditingController pinController =
-TextEditingController();
+  final TextEditingController pinController =
+  TextEditingController();
 
-String addressType = "Home";
+  String addressType = "Home";
 
-bool isDefault = true;
+  bool isDefault = true;
 
-bool loading = false;
-bool searchingPincode = false;
+  bool loading = false;
+  bool locationLoading = false;
+  bool searchingPincode = false;
 
-String? pincodeError;
+  String? pincodeError;
 
-@override
-Widget build(BuildContext context) {
-return Scaffold(
-appBar: AppBar(
-title: const Text("Add Address"),
-),
-body: Form(
-key: _formKey,
-child: ListView(
-padding: const EdgeInsets.all(16),
-children: [
-TextFormField(
-controller: fullNameController,
-decoration: const InputDecoration(
-labelText: "Full Name",
-border: OutlineInputBorder(),
-),
-validator: (value) =>
-value!.isEmpty ? "Enter Full Name" : null,
-),
-
-const SizedBox(height: 15),
-
-TextFormField(
-controller: phoneController,
-keyboardType: TextInputType.phone,
-decoration: const InputDecoration(
-labelText: "Mobile Number",
-border: OutlineInputBorder(),
-),
-validator: (value) =>
-value!.length != 10 ? "Enter Valid Mobile Number" : null,
-),
-
-const SizedBox(height: 15),
-
-TextFormField(
-controller: houseController,
-decoration: const InputDecoration(
-labelText: "House / Flat No.",
-border: OutlineInputBorder(),
-),
-validator: (value) =>
-value!.isEmpty ? "Enter House Number" : null,
-),
-
-const SizedBox(height: 15),
-
-  TextFormField(
-    controller: areaController,
-    readOnly: true,
-    decoration: const InputDecoration(
-      labelText: "Area / Locality",
-      border: OutlineInputBorder(),
-      suffixIcon: Icon(Icons.location_on),
-    ),
-  ),
-
-const SizedBox(height: 15),
-
-TextFormField(
-controller: landmarkController,
-decoration: const InputDecoration(
-labelText: "Landmark (Optional)",
-border: OutlineInputBorder(),
-),
-),
-
-const SizedBox(height: 15),
-
-  TextFormField(
-    controller: cityController,
-    readOnly: true,
-    decoration: const InputDecoration(
-      labelText: "City",
-      border: OutlineInputBorder(),
-      suffixIcon: Icon(Icons.location_city),
-    ),
-  ),
-
-const SizedBox(height: 15),
-
-  TextFormField(
-    controller: stateController,
-    readOnly: true,
-    decoration: const InputDecoration(
-      labelText: "State",
-      border: OutlineInputBorder(),
-      suffixIcon: Icon(Icons.map),
-    ),
-  ),
-
-const SizedBox(height: 15),
-
-  TextFormField(
-    controller: pinController,
-    keyboardType: TextInputType.number,
-    maxLength: 6,
-    decoration: InputDecoration(
-      labelText: "Pincode",
-      border: const OutlineInputBorder(),
-      counterText: "",
-      suffixIcon: searchingPincode
-          ? const Padding(
-        padding: EdgeInsets.all(12),
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-          ),
-        ),
-      )
-          : pincodeError == null &&
-          pinController.text.length == 6
-          ? const Icon(
-        Icons.check_circle,
-        color: Colors.green,
-      )
-          : null,
-    ),
-    onChanged: _searchPincode,
-    validator: (value) {
-      if (value == null || value.length != 6) {
-        return "Enter Valid Pincode";
-      }
-
-      if (pincodeError != null) {
-        return pincodeError;
-      }
-
-      return null;
-    },
-  ),
-
-const SizedBox(height: 20),
-
-DropdownButtonFormField<String>(
-value: addressType,
-decoration: const InputDecoration(
-labelText: "Address Type",
-border: OutlineInputBorder(),
-),
-items: const [
-DropdownMenuItem(
-value: "Home",
-child: Text("Home"),
-),
-DropdownMenuItem(
-value: "Work",
-child: Text("Work"),
-),
-DropdownMenuItem(
-value: "Other",
-child: Text("Other"),
-),
-],
-onChanged: (value) {
-setState(() {
-addressType = value!;
-});
-},
-),
-
-const SizedBox(height: 15),
-
-SwitchListTile(
-value: isDefault,
-title: const Text("Set as Default Address"),
-onChanged: (value) {
-setState(() {
-isDefault = value;
-});
-},
-),
-
-const SizedBox(height: 20),
-  SizedBox(
-    width: double.infinity,
-    height: 55,
-    child: ElevatedButton(
-      onPressed: loading
-          ? null
-          : () async {
-        if (!_formKey.currentState!.validate()) {
-          return;
-        }
-
-        setState(() {
-          loading = true;
-        });
-
-        final address = AddressModel(
-          id: '',
-          fullName: fullNameController.text.trim(),
-          phone: phoneController.text.trim(),
-          houseNo: houseController.text.trim(),
-          area: areaController.text.trim(),
-          landmark: landmarkController.text.trim(),
-          city: cityController.text.trim(),
-          state: stateController.text.trim(),
-          pincode: pinController.text.trim(),
-          addressType: addressType,
-          isDefault: isDefault,
-        );
-
-        await _firestoreService.addAddress(address);
-
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      },
-      child: loading
-          ? const CircularProgressIndicator(
-        color: Colors.white,
-      )
-          : const Text(
-        "Save Address",
-        style: TextStyle(fontSize: 16),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Add Address"),
       ),
-    ),
-  ),
-],
-),
-),
-);
-}
-Future<void> _searchPincode(String value) async {
-  if (value.length != 6) {
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: locationLoading
+                        ? null
+                        : _useCurrentLocation,
+                    icon: locationLoading
+                        ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                        : const Icon(Icons.my_location),
+                    label: Text(
+                      locationLoading
+                          ? "Getting Location..."
+                          : "Use Current Location",
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: fullNameController,
+              decoration: const InputDecoration(
+                labelText: "Full Name",
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) =>
+              value!.isEmpty ? "Enter Full Name" : null,
+            ),
+
+            const SizedBox(height: 15),
+
+            TextFormField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: "Mobile Number",
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) =>
+              value!.length != 10 ? "Enter Valid Mobile Number" : null,
+            ),
+
+            const SizedBox(height: 15),
+
+            TextFormField(
+              controller: houseController,
+              decoration: const InputDecoration(
+                labelText: "House / Flat No.",
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) =>
+              value!.isEmpty ? "Enter House Number" : null,
+            ),
+
+            const SizedBox(height: 15),
+
+            TextFormField(
+              controller: areaController,
+              decoration: const InputDecoration(
+                labelText: "Area / Locality",
+                border: OutlineInputBorder(),
+                suffixIcon: Icon(Icons.location_on),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextFormField(
+              controller: landmarkController,
+              decoration: const InputDecoration(
+                labelText: "Landmark (Optional)",
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextFormField(
+              controller: cityController,
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: "City",
+                border: OutlineInputBorder(),
+                suffixIcon: Icon(Icons.location_city),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextFormField(
+              controller: stateController,
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: "State",
+                border: OutlineInputBorder(),
+                suffixIcon: Icon(Icons.map),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextFormField(
+              controller: pinController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              decoration: InputDecoration(
+                labelText: "Pincode",
+                border: const OutlineInputBorder(),
+                counterText: "",
+                suffixIcon: searchingPincode
+                    ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  ),
+                )
+                    : pincodeError == null &&
+                    pinController.text.length == 6
+                    ? const Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                )
+                    : null,
+              ),
+              onChanged: _searchPincode,
+              validator: (value) {
+                if (value == null || value.length != 6) {
+                  return "Enter Valid Pincode";
+                }
+
+                if (pincodeError != null) {
+                  return pincodeError;
+                }
+
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            DropdownButtonFormField<String>(
+              value: addressType,
+              decoration: const InputDecoration(
+                labelText: "Address Type",
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: "Home",
+                  child: Text("Home"),
+                ),
+                DropdownMenuItem(
+                  value: "Work",
+                  child: Text("Work"),
+                ),
+                DropdownMenuItem(
+                  value: "Other",
+                  child: Text("Other"),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  addressType = value!;
+                });
+              },
+            ),
+
+            const SizedBox(height: 15),
+
+            SwitchListTile(
+              value: isDefault,
+              title: const Text("Set as Default Address"),
+              onChanged: (value) {
+                setState(() {
+                  isDefault = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: loading
+                    ? null
+                    : () async {
+                  if (!_formKey.currentState!.validate()) {
+                    return;
+                  }
+
+                  setState(() {
+                    loading = true;
+                  });
+
+                  final address = AddressModel(
+                    id: '',
+                    fullName: fullNameController.text.trim(),
+                    phone: phoneController.text.trim(),
+                    houseNo: houseController.text.trim(),
+                    area: areaController.text.trim(),
+                    landmark: landmarkController.text.trim(),
+                    city: cityController.text.trim(),
+                    state: stateController.text.trim(),
+                    pincode: pinController.text.trim(),
+                    addressType: addressType,
+                    isDefault: isDefault,
+                  );
+
+                  await _firestoreService.addAddress(address);
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
+                },
+                child: loading
+                    ? const CircularProgressIndicator(
+                  color: Colors.white,
+                )
+                    : const Text(
+                  "Save Address",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _searchPincode(String value) async {
+    if (value.length != 6) {
+      setState(() {
+        cityController.clear();
+        stateController.clear();
+        pincodeError = null;
+      });
+      return;
+    }
+
     setState(() {
-      cityController.clear();
-      stateController.clear();
+      searchingPincode = true;
       pincodeError = null;
     });
-    return;
-  }
 
-  setState(() {
-    searchingPincode = true;
-    pincodeError = null;
-  });
+    final result =
+    await PincodeService.getAddressFromPincode(value);
 
-  final result =
-  await PincodeService.getAddressFromPincode(value);
+    if (!mounted) return;
 
-  if (!mounted) return;
+    if (result == null) {
+      setState(() {
+        searchingPincode = false;
+        cityController.clear();
+        stateController.clear();
+        pincodeError = "Invalid Pincode";
+      });
 
-  if (result == null) {
+      return;
+    }
+
+    areaController.text = result["area"]!;
+    cityController.text = result["city"]!;
+    stateController.text = result["state"]!;
+
     setState(() {
       searchingPincode = false;
-      cityController.clear();
-      stateController.clear();
-      pincodeError = "Invalid Pincode";
+      pincodeError = null;
     });
-
-    return;
   }
 
-  areaController.text = result["area"]!;
-  cityController.text = result["city"]!;
-  stateController.text = result["state"]!;
+  Future<void> _useCurrentLocation() async {
+    setState(() {
+      locationLoading = true;
+    });
 
-  setState(() {
-    searchingPincode = false;
-    pincodeError = null;
-  });
-}
-@override
-void dispose() {
-  fullNameController.dispose();
-  phoneController.dispose();
-  houseController.dispose();
-  areaController.dispose();
-  landmarkController.dispose();
-  cityController.dispose();
-  stateController.dispose();
-  pinController.dispose();
-  super.dispose();
-}
+    final address = await LocationService.getCurrentAddress();
+
+    if (!mounted) return;
+
+    setState(() {
+      locationLoading = false;
+    });
+
+    if (address == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Unable to get current location"),
+        ),
+      );
+      return;
+    }
+
+    houseController.text =
+    address["house"]!.isNotEmpty ? address["house"]! : "";
+    areaController.text = address["area"] ?? "";
+    cityController.text = address["city"] ?? "";
+    stateController.text = address["state"] ?? "";
+    pinController.text = address["pincode"] ?? "";
+
+// GPS address is preferred, so don't overwrite it.
+    setState(() {
+      pincodeError = null;
+    });
+    @override
+    void dispose() {
+      fullNameController.dispose();
+      phoneController.dispose();
+      houseController.dispose();
+      areaController.dispose();
+      landmarkController.dispose();
+      cityController.dispose();
+      stateController.dispose();
+      pinController.dispose();
+      super.dispose();
+    }
+  }
 }
