@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import '../../services/firestore_order_service.dart';
 import '../../models/order_model.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
 final String orderId;
+final FirestoreOrderService _orderService =
+FirestoreOrderService();
 
-const OrderDetailsScreen({
+OrderDetailsScreen({
 super.key,
 required this.orderId,
 });
@@ -59,6 +61,7 @@ return Colors.grey;
 }
 
 @override
+
 Widget build(BuildContext context) {
 return Scaffold(
 backgroundColor: Colors.grey.shade100,
@@ -456,6 +459,56 @@ const SizedBox(height: 25),
       ),
     ),
   ),
+  if (order.status == "Pending" ||
+      order.status == "Accepted")
+    SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.cancel),
+        label: const Text("Cancel Order"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+        ),
+        onPressed: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Cancel Order"),
+                content: const Text(
+                  "Are you sure you want to cancel this order?",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.pop(context, false),
+                    child: const Text("No"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () =>
+                        Navigator.pop(context, true),
+                    child: const Text("Yes"),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (confirm == true) {
+            await _orderService.cancelOrder(order.orderId);
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Order Cancelled"),
+                ),
+              );
+            }
+          }
+        },
+      ),
+    ),
 
   const SizedBox(height: 30),
 ],

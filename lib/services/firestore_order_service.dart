@@ -11,6 +11,7 @@ class FirestoreOrderService {
     required List<Map<String, dynamic>> items,
     required Map<String, String>? address,
   }) async {
+
     final user = FirebaseAuth.instance.currentUser;
 
     await _firestore.collection("orders").doc(orderId).set({
@@ -28,6 +29,11 @@ class FirestoreOrderService {
       "deliveryPartnerId": "",
       "deliveryPartnerName": "",
       "createdAt": FieldValue.serverTimestamp(),
+    });
+  }
+  Future<void> cancelOrder(String orderId) async {
+    await _firestore.collection("orders").doc(orderId).update({
+      "status": "Cancelled",
     });
   }
 }
