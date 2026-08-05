@@ -427,6 +427,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     paymentMethod: orderPaymentMethod,
                     items: orderItems,
                     address: selectedAddress,
+
+                    restaurantId: cart.restaurantId!,
+                    restaurantName: cart.restaurantName!,
                   );
 
                   if (!context.mounted) return;

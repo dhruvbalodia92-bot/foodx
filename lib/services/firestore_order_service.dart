@@ -10,6 +10,8 @@ class FirestoreOrderService {
     required String paymentMethod,
     required List<Map<String, dynamic>> items,
     required Map<String, String>? address,
+    required String restaurantId,
+    required String restaurantName,
   }) async {
 
     final user = FirebaseAuth.instance.currentUser;
@@ -18,6 +20,8 @@ class FirestoreOrderService {
       "orderId": orderId,
       "userId": user?.uid ?? "",
       "phone": user?.phoneNumber ?? "",
+      "restaurantId": restaurantId,
+      "restaurantName": restaurantName,
       "totalAmount": totalAmount,
       "paymentMethod": paymentMethod,
       "paymentStatus": paymentMethod == "COD"

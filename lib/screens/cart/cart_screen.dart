@@ -132,8 +132,10 @@ class CartScreen extends StatelessWidget {
                             IconButton(
                               onPressed: () {
                                 cart.addItem(
-                                  item.name,
-                                  item.price,
+                                  name: item.name,
+                                  price: item.price,
+                                  restaurantId: cart.restaurantId!,
+                                  restaurantName: cart.restaurantName!,
                                 );
                               },
                               icon: const Icon(

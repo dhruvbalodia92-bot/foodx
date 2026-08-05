@@ -3,6 +3,11 @@ import '../models/cart_item.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [];
+  String? _restaurantId;
+  String? _restaurantName;
+
+  String? get restaurantId => _restaurantId;
+  String? get restaurantName => _restaurantName;
 
   // Cart ke saare items
   List<CartItem> get items => _items;
@@ -27,7 +32,17 @@ class CartProvider extends ChangeNotifier {
   }
 
   // Item add karo
-  void addItem(String name, int price) {
+  void addItem({
+    required String name,
+    required int price,
+    required String restaurantId,
+    required String restaurantName,
+  }) {
+    if (_items.isEmpty) {
+      _restaurantId = restaurantId;
+      _restaurantName = restaurantName;
+    }
+
     final index = _items.indexWhere(
           (item) => item.name == name,
     );
@@ -79,6 +94,10 @@ class CartProvider extends ChangeNotifier {
   // Pura cart clear karo
   void clearCart() {
     _items.clear();
+
+    _restaurantId = null;
+    _restaurantName = null;
+
     notifyListeners();
   }
 }
